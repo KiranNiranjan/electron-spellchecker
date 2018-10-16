@@ -1,5 +1,4 @@
 const {spawn} = require('spawn-rx');
-const {requireTaskPool} = require('@aabuhijleh/electron-remote');
 const LRU = require('lru-cache');
 
 const {Subscription} = require('rxjs/Subscription');
@@ -37,11 +36,8 @@ let Spellchecker;
 
 let d = require('debug')('electron-spellchecker:spell-check-handler');
 
-const cld = requireTaskPool(require.resolve('./cld2'));
+const cld = require.resolve('./cld2');
 let fallbackLocaleTable = null;
-let webFrame = (process.type === 'renderer' ?
-  require('electron').webFrame :
-  null);
 
 // NB: Linux and Windows uses underscore in languages (i.e. 'en_US'), whereas
 // we're trying really hard to match the Chromium way of `en-US`
@@ -139,11 +135,6 @@ module.exports = class SpellCheckHandler {
       // NB: OS X does automatic language detection, we're gonna trust it
       this.currentSpellchecker = new Spellchecker();
       this.currentSpellcheckerLanguage = 'en-US';
-
-      if (webFrame) {
-        this.setSpellCheckProvider(webFrame);
-      }
-      return;
     }
   }
 
@@ -288,22 +279,6 @@ module.exports = class SpellCheckHandler {
         d(`New Language is ${lang}`);
       }));
 
-    if (webFrame) {
-      let prevSpellCheckLanguage;
-
-      disp.add(this.currentSpellcheckerChanged
-          .startWith(true)
-        .filter(() => this.currentSpellcheckerLanguage)
-        .subscribe(() => {
-          if (prevSpellCheckLanguage === this.currentSpellcheckerLanguage) return;
-
-          d('Actually installing spell check provider to Electron');
-          this.setSpellCheckProvider(webFrame);
-
-          prevSpellCheckLanguage = this.currentSpellcheckerLanguage;
-        }));
-    }
-
     this.disp.add(disp);
     return disp;
   }
@@ -382,7 +357,7 @@ module.exports = class SpellCheckHandler {
     let dict = null;
 
     this.isMisspelledCache.reset();
-    
+
     // Set language on macOS
     if (isMac && this.currentSpellchecker) {
       d(`Setting current spellchecker to ${langCode}`);
@@ -495,7 +470,7 @@ module.exports = class SpellCheckHandler {
   }
 
   /**
-   *  The actual callout called by Electron version 5 and above to handle 
+   *  The actual callout called by Electron version 5 and above to handle
    *  spellchecking.
    *  @private
    */
