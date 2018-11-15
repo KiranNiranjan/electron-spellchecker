@@ -3,6 +3,8 @@ const {truncateString, matchesWord} = require('./utility');
 
 const request = require('request').defaults({ encoding: null });
 
+const request = require('request').defaults({ encoding: null });
+
 let d = require('debug')('electron-spellchecker:context-menu-builder');
 
 const contextMenuStringTable = {
