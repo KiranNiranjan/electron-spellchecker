@@ -1,5 +1,5 @@
 {
-  "name": "electron-spellchecker",
+  "name": "@symphony/electron-spellchecker",
   "version": "2.2.0",
   "description": "Implement spellchecking, correctly",
   "scripts": {
