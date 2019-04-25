@@ -3,8 +3,6 @@ const {truncateString, matchesWord} = require('./utility');
 
 const request = require('request').defaults({ encoding: null });
 
-const request = require('request').defaults({ encoding: null });
-
 let d = require('debug')('electron-spellchecker:context-menu-builder');
 
 const contextMenuStringTable = {
@@ -90,7 +88,11 @@ module.exports = class ContextMenuBuilder {
   async showPopupMenu(contextInfo) {
     let menu = await this.buildMenuForElement(contextInfo);
     if (!menu) return;
-    menu.popup({});
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    if (!(focusedWindow && typeof focusedWindow.isDestroyed === 'function' && !window.isDestroyed())) {
+      return;
+    }
+    menu.popup({ window: focusedWindow });
   }
 
   /**
